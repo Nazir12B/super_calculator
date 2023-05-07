@@ -25,10 +25,10 @@ jobs:
           dockerfile: "Dockerfile"
 
   super_linter:
-
+    
     runs-on: ubuntu-latest
     steps:
       - name: Super Linter Execution
         uses: actions/checkout@v2
       - name: Run Super-Linter
-        uses: github/super-linter@v4.14.4
+        uses: github/super-linter@v5
