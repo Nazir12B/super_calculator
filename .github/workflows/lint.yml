@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Analysis code
         uses: actions/checkout@v2
-      - name: smgrep
+      - name: Runing Semgrep
         uses: returntocorp/semgrep
 
   dockerfile_hadolint_analysis:
