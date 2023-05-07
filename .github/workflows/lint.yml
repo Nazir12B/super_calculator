@@ -25,7 +25,7 @@ jobs:
           dockerfile: "Dockerfile"
 
   super_linter:
-    
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Super Linter Execution
