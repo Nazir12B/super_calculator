@@ -22,7 +22,7 @@ jobs:
       - name: Runing Hadolint
         uses: hadolint/hadolint@v1.18.0
         with:
-          files: Dockerfile
+          files: ../Dockerfile
 
   super_linter:
     if: github.event_name == 'pull_request'
