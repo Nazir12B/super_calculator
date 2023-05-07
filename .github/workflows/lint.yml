@@ -12,7 +12,7 @@ jobs:
       - name: Analysis code
         uses: actions/checkout@v2
       - name: Runing Semgrep
-        uses: returntocorp/semgrep
+        uses: returntocorp/semgrep-action@v1
 
   dockerfile_hadolint_analysis:
     runs-on: ubuntu-latest
