@@ -2,13 +2,9 @@ name: Release
 
 # Déclenche la workflow lorsqu'un tag est créé sur une release
 on:
-  release:
-    types: [created]
-
-# Environnement de la workflow
-env:
-  DOCKERHUB_USERNAME: your_dockerhub_username_here # à remplacer par votre nom d'utilisateur Docker Hub
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }} # à remplacer par votre token d'accès personnel Docker Hub
+  push:
+    tags:
+      - '*'
 
 # Les étapes de la workflow
 jobs:
@@ -19,25 +15,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       
-      # Installe Goreleaser
-      - name: Install Goreleaser
-        run: |
-          curl -sL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sudo -E bash
-      
-      # Compile le code avec Goreleaser et crée une release
-      - name: Run Goreleaser
-        run: |
-          goreleaser release --rm-dist
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: stable
+      - name: Release
+        uses: goreleaser/goreleaser-action@v4
+        if: success() && startsWith(github.ref, 'refs/tags/')
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       
       # Construit l'image Docker à partir du Dockerfile et la pousse vers Docker Hub
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           # Utilise le tag de la release comme tag pour l'image Docker
-          tags: $DOCKERHUB_USERNAME/$GITHUB_REPOSITORY:$GITHUB_TAG
-      
-      # Enregistre le résultat de l'étape précédente dans un fichier pour utilisation ultérieure
-      - name: Save image tag to file
-        run: echo ::set-output name=image-tag::$DOCKERHUB_USERNAME/$GITHUB_REPOSITORY:$GITHUB_TAG >> $GITHUB_ENV
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/super_calculator:${{  github.ref_name }}
